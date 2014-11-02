@@ -1,6 +1,7 @@
 import std.stdio;
 import std.string;
 import std.math;
+import std.conv;
 import std.array, std.range;
 
 enum CalcState {
@@ -41,14 +42,15 @@ class Calculator {
 		return string.valueOf(charSign);
 	}
 */
-/*	public string repeat(char c, int n) {
-		string str = "";
+	public string repeat_char(char c, int n) {
+	/*	string str = "";
 		str repa
 		char[] chars = new char[n];
 		//Arrays.fill(chars, c);
-		return chars;
+		return chars;*/
+		return rightJustify("", n, c); 	
 	}
-*/
+
 	public string format_it(double d) {
 		//DecimalFormat df = new DecimalFormat("#0.#");
 		//return df.format(d);
@@ -78,7 +80,7 @@ class Calculator {
 		string s = format_it(value);
 
 		if (iZeroes > 0) {						
-			s = s ~ rightJustify("", iZeroes, '0'); 
+			s = s ~ repeat_char('0', iZeroes); 
 		}
 
 		// Move the sign to a variable
@@ -155,7 +157,7 @@ class Calculator {
 			if (r <= 0)
 				error();
 			else
-				setDisplay(log2(r), false);
+				setDisplay(log(r), false);
 		} else if (key=="X^2")
 			setDisplay(r * r, false);
 		else if (key=="+/-") {
@@ -184,45 +186,46 @@ class Calculator {
 				sNumber = "0";
 			else
 				sNumber = sNumber[0..sNumber.length - 2];
-			setDisplay(sNumber.toDouble, true);// { !!! }
+			setDisplay(to!double(sNumber), true);// { !!! }
+			
 		}
 
-		else if (key.equals("00")) {
-			if (sNumber.length() < iMaxDigits - 1) {
+		else if (key=="00") {
+			if (sNumber.length < iMaxDigits - 1) {
 				check(true);
-				if (!sNumber.equals("0")) {
-					sNumber = sNumber + key;
-					dDisplayNumber = Double.parseDouble(sNumber);
+				if (sNumber!="0") {
+					sNumber = sNumber ~ key;
+					dDisplayNumber = to!double(sNumber);
 				}
 			}
 		}
-		else if (key.equals("0")) {
-			if (sNumber.length() < iMaxDigits) {
+		else if (key=="0") {
+			if (sNumber.length < iMaxDigits) {
 				check(true);
-				if (!sNumber.equals("0")) {
-					sNumber = sNumber + key;
-					dDisplayNumber = Double.parseDouble(sNumber);
+				if (sNumber!="0") {
+					sNumber = sNumber ~ key;
+					dDisplayNumber = to!double(sNumber);
 				}
 			}
 		}
-		else if (key.compareTo("1") >= 0 && (key.compareTo("9") <= 0)) {
-			if (sNumber.length() < iMaxDigits) {
+		else if (key >="1" && key <="9") {
+			if (sNumber.length < iMaxDigits) {
 				check(false);
-				if (sNumber.equals("0"))
+				if (sNumber=="0")
 					sNumber = ""; 
-				sNumber = sNumber + key;
-				dDisplayNumber = Double.parseDouble(sNumber);
+				sNumber = sNumber ~ key;
+				dDisplayNumber = to!double(sNumber);
 			}
-		} else if (key.equals(".")) {
+		} else if (key==".") {
 			check(true);
 			if (sNumber.indexOf('.') < 0)
-				sNumber = sNumber + '.';
-		} else if (key.equals("H")) {
+				sNumber = sNumber ~ '.';
+		} else if (key=="H") {
 			r = getDisplay();
-			sNumber = Long.toHexString(Math.round(r));
+			sNumber = format("hhhhhhhh", round(r));
 			bHexShown = true;
 		} else { // finally else '^', '+', '-', '*', '/', '%', '='
-			if (key.equals("=") && (calcState == CalcState.csFirst)) {
+			if (key=="=" && (calcState == CalcState.csFirst)) {
 				// for repeat last operator
 				calcState = CalcState.csValid;
 				r = dLastResult;
@@ -232,45 +235,45 @@ class Calculator {
 
 			if (calcState == CalcState.csValid) {
 				bStarted = true;
-				if (cOperator.equals("="))
+				if (cOperator=="=")
 					s = " ";
 				else
 					s = getOperator();
 
-				log(s + format(r));
+				write_log(s ~ format_it(r));
 
 				calcState = CalcState.csFirst;
 				cLastOperator = cOperator;
 				dLastResult = r;
-				if (key.equals("%")) {
-					if (cOperator.equals("+")
-						|| cOperator.equals("-"))
+				if (key=="%") {
+					if (cOperator=="+"
+						|| cOperator=="-")
 						r = dOperand * r / 100;
-					else if (cOperator.equals("*")
-							 || cOperator.equals("/"))
+					else if (cOperator=="*"
+							 || cOperator=="/")
 						r = r / 100;
 				}
 
-				else if (cOperator.equals("^")) {
+				else if (cOperator=="^") {
 					if ((dOperand == 0) && (r <= 0))
 						error();
 					else
-						setDisplay(Math.pow(dOperand, r), false);
-				} else if (cOperator.equals("+"))
+						setDisplay(pow(dOperand, r), false);
+				} else if (cOperator=="+")
 					setDisplay(dOperand + r, false);
-				else if (cOperator.equals("-"))
+				else if (cOperator=="-")
 					setDisplay(dOperand - r, false);
-				else if (cOperator.equals("*"))
+				else if (cOperator=="*")
 					setDisplay(dOperand * r, false);
-				else if (cOperator.equals("/")) {
+				else if (cOperator=="/") {
 					if (r == 0)
 						error();
 					else
 						setDisplay(dOperand / r, false);
 				}
 			}
-			if (key.equals("="))
-				log('=' + sNumber);
+			if (key=="=")
+				write_log('=' ~ sNumber);
 
 			cOperator = key;
 			dOperand = getDisplay();
@@ -282,7 +285,7 @@ class Calculator {
 
 	public void clear() {
 		if (bStarted)
-			log(repeat('-', 10));//just a separator
+			write_log(repeat_char('-', 10));//just a separator
 		bStarted = false;
 		calcState = CalcState.csFirst;
 		sNumber = "0";
@@ -305,7 +308,7 @@ class Calculator {
 	}
 
 	// This methods need to override;
-	public void log(string S) { // virtual
+	public void write_log(string S) { // virtual
 
 	}
 
@@ -314,9 +317,9 @@ class Calculator {
 	}
 
 	public string getOperator() {
-		if (cOperator.equals("*")) 
+		if (cOperator=="*") 
 			return "×";
-		else if (cOperator.equals("/")) 
+		else if (cOperator=="/") 
 			return "÷";
 		else
 			return cOperator;					
