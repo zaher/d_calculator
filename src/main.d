@@ -23,6 +23,7 @@ class Calculator {
   protected bool bHaveMemory = false;
   protected double dDisplayNumber = 0;
   protected bool bHexShown = false;
+  protected bool bLog = false;
 
   public int iMaxDecimals = 10;
   public int iMaxDigits = 30;
@@ -55,7 +56,8 @@ class Calculator {
   public string format_it(double d) {
     //DecimalFormat df = new DecimalFormat("#0.#");
     //return df.format(d);
-    return format("#0.#", d);
+    //return format("#0.#", d);
+    return format("%g", d);    
   }
 
   public double getDisplay() {
@@ -111,6 +113,11 @@ class Calculator {
       return true;
     }
     return false;
+  }
+
+  void process(char c) {
+    string s = "" ~ c;
+    process(s);
   }
 
   public void process(string key) {
@@ -241,7 +248,8 @@ class Calculator {
         else
           s = getOperator();
 
-        write_log(s ~ format_it(r));
+        if (bLog)
+          write_log(s ~ format_it(r));
 
         calcState = CalcState.csFirst;
         cLastOperator = cOperator;
@@ -273,7 +281,7 @@ class Calculator {
             setDisplay(dOperand / r, false);
         }
       }
-      if (key=="=")
+      if (bLog && key=="=")
         write_log('=' ~ sNumber);
 
       cOperator = key;
@@ -284,8 +292,17 @@ class Calculator {
     refresh();
   }
 
+  void scanline(char[] buf) {
+    int i = 0;
+
+    while(i < buf.length - 1) {
+      process(buf[i]);
+      i++;
+    }    
+  }
+
   public void clear() {
-    if (bStarted)
+    if (bLog && bStarted)
       write_log(repeat_char('-', 10));//just a separator
     bStarted = false;
     calcState = CalcState.csFirst;
@@ -327,32 +344,20 @@ class Calculator {
   }
 }
 
-void process(Calculator calculator, char c) {
-  string s = "" ~ c;
-  calculator.process(s);
-}
-
 int main(string[] argv)
 {
   Calculator calculator = new Calculator;
 
-  void scanline(char[] buf) {
-    int i = 0;
-    
-    while(i < buf.length - 1) {
-      calculator.process(buf[i]);
-      i++;
-    }    
-    //writeln("Result: " ~ calculator.getDisplay);
-  }
-
   char[] buf;
 
+  writeln("=== ", calculator.getDisplay, " ===");
   while (readln(buf)) {
     if (buf.strip.empty)
       break;
-    scanline(buf);
-
+    if (buf[buf.length - 1] != '=')
+      buf = buf ~ '=';
+    calculator.scanline(buf);
+    writeln("=== ", calculator.getDisplay, " ===");
   }
   return 0;
 }
