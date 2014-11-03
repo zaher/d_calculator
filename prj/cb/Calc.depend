@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1415026624 source:w:\home\d\projects\calc\src\main.d
+	<std/stdio.d>
+	<std/string.d>
+	<std/math.d>
+	<std/conv.d>
+	<std/array.d>
+	<std/range.d>
+

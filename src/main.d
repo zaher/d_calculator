@@ -2,7 +2,8 @@ import std.stdio;
 import std.string;
 import std.math;
 import std.conv;
-import std.array, std.range;
+import std.array;
+import std.range;
 
 enum CalcState {
 	csFirst, csValid, csError
@@ -26,8 +27,12 @@ class Calculator {
 	public int iMaxDecimals = 10;
 	public int iMaxDigits = 30;
 
-	public void Calculator() {
+	this() {
 	//	reset();
+	}
+
+	~this() {
+		//	reset();
 	}
 
 	override string toString() {
@@ -38,17 +43,13 @@ class Calculator {
 		return sNumber;
 	}
 
-/*	public string getSign() {
-		return string.valueOf(charSign);
-	}
-*/
 	public string repeat_char(char c, int n) {
 	/*	string str = "";
 		str repa
 		char[] chars = new char[n];
 		//Arrays.fill(chars, c);
 		return chars;*/
-		return rightJustify("", n, c); 	
+		return rightJustify("", n, c);
 	}
 
 	public string format_it(double d) {
@@ -79,12 +80,12 @@ class Calculator {
 
 		string s = format_it(value);
 
-		if (iZeroes > 0) {						
-			s = s ~ repeat_char('0', iZeroes); 
+		if (iZeroes > 0) {
+			s = s ~ repeat_char('0', iZeroes);
 		}
 
 		// Move the sign to a variable
-		if (s[0] == '-') {			
+		if (s[0] == '-') {
 			s = s[1..$];
 			charSign = '-';
 		} else
@@ -103,10 +104,10 @@ class Calculator {
 		if (calcState == CalcState.csFirst) {
 			calcState = CalcState.csValid;
 			dDisplayNumber = 0;
-			if (initZero) 
+			if (initZero)
 				sNumber = "0";
 			else
-				sNumber = "";				
+				sNumber = "";
 			return true;
 		}
 		return false;
@@ -140,7 +141,7 @@ class Calculator {
 		else if (key=="AC")
 			clear();
 		else if (key=="CR") {
-			if (!check(true)) 
+			if (!check(true))
 				setDisplay(0, true);
 			calcState = CalcState.csFirst;
 		} else if (key=="1/X") {
@@ -187,7 +188,7 @@ class Calculator {
 			else
 				sNumber = sNumber[0..sNumber.length - 2];
 			setDisplay(to!double(sNumber), true);// { !!! }
-			
+
 		}
 
 		else if (key=="00") {
@@ -212,7 +213,7 @@ class Calculator {
 			if (sNumber.length < iMaxDigits) {
 				check(false);
 				if (sNumber=="0")
-					sNumber = ""; 
+					sNumber = "";
 				sNumber = sNumber ~ key;
 				dDisplayNumber = to!double(sNumber);
 			}
@@ -317,19 +318,41 @@ class Calculator {
 	}
 
 	public string getOperator() {
-		if (cOperator=="*") 
+		if (cOperator=="*")
 			return "×";
-		else if (cOperator=="/") 
+		else if (cOperator=="/")
 			return "÷";
 		else
-			return cOperator;					
-
+			return cOperator;
 	}
 }
 
+void process_char(Calculator calculator, char c) {
+}
 
 int main(string[] argv)
 {
-    writeln("Calc");
-    return 0;
+  Calculator calculator = new Calculator;
+
+  void scanline(char[] buf) {
+    int i = 0;
+    
+    string s = "";
+    while(i < buf.length - 1) {
+      calculator.process_char(buf[i]);
+      i++;
+    }
+
+    writeln(calculator.getDisplay);
+  }
+
+  char[] buf;
+
+  while (readln(buf)) {
+  	if (buf.strip.empty)
+			break;
+    scanline(buf);
+
+	}
+  return 0;
 }
