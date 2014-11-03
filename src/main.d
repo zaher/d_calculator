@@ -327,7 +327,9 @@ class Calculator {
 	}
 }
 
-void process_char(Calculator calculator, char c) {
+void process(Calculator calculator, char c) {
+  string s = "" ~ c;
+  calculator.process(s);
 }
 
 int main(string[] argv)
@@ -337,13 +339,11 @@ int main(string[] argv)
   void scanline(char[] buf) {
     int i = 0;
     
-    string s = "";
     while(i < buf.length - 1) {
-      calculator.process_char(buf[i]);
+      calculator.process(buf[i]);
       i++;
-    }
-
-    writeln(calculator.getDisplay);
+    }    
+    //writeln("Result: " ~ calculator.getDisplay);
   }
 
   char[] buf;
