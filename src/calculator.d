@@ -1,3 +1,5 @@
+module calculator;
+
 import std.stdio;
 import std.string;
 import std.math;
@@ -342,22 +344,4 @@ class Calculator {
     else
       return cOperator;
   }
-}
-
-int main(string[] argv)
-{
-  Calculator calculator = new Calculator;
-
-  char[] buf;
-
-  writeln("=== ", calculator.getDisplay, " ===");
-  while (readln(buf)) {
-    if (buf.strip.empty)
-      break;
-    if (buf[buf.length - 1] != '=')
-      buf = buf ~ '=';
-    calculator.scanline(buf);
-    writeln("=== ", calculator.getDisplay, " ===");
-  }
-  return 0;
 }

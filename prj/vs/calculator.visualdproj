@@ -198,6 +198,7 @@
  </Config>
  <Folder name="calc">
   <Folder name="src">
+   <File path="..\..\src\calculator.d" />
    <File path="..\..\src\main.d" />
   </Folder>
  </Folder>
